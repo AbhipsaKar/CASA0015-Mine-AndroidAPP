@@ -20,7 +20,7 @@ The proposed app has the following features:
 2. Remembers login information for each user.
 3. Consists of 2 sections: Trackers and To-do list
 4. The tracker section remembers and displays the last known location of all family member in a quick glance. When a user enters the tracker page, their current location is updated.
-5. The To-do list maintains a list to do items logged by family members consisting of the intended participant, date of logging and message. Once to-do list item is completed, the same can be deleted from the list with a single tap
+5. The To-do list maintains a list to do items logged by family members consisting of the intended participant, date of logging and message. Once to-do list item is completed, the same can be deleted from the list with a single tap.
 
 ## Wireframe
 ![image](https://user-images.githubusercontent.com/91799774/167428711-aeb675af-e17e-4749-9a3d-648a04e2fa0e.png)
@@ -51,3 +51,4 @@ Notes workflow:
 3. Due to the process of testing from a single phone, the location of all family members is shown as the same location. To test separate locations, I used the login functionality to login as multiple users at different locations. After firebase is integrated, it will be possible to record locations for multiple users.
 4. To demonstrate the utility of tracker application, two dummy ids[John and Tina] are provided in code if the person list is empty. This is just for demo.
 5. Images cutouts have been used to show different profiles on trackers and note page. In future, user would be able to customise the marker with their own picture.
+6. It is important to think about the ethical implications of sharing someone's location even though they are a family member and android app asks for location permissions. In future, the app could be enhanced with more options to stop and start sharing based on user's choice to make the app more secure.
