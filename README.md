@@ -45,3 +45,4 @@ Notes workflow:
 2. Due to shortage of time, the app does not support the 'Add family' functionality yet. In future, a separate workflow needs to be added to Add new family/Add new member to your family.
 3. Due to the process of testing from a single phone, the location of all family members is shown as the same location. To test separate locations, I used the login functionality to login as multiple users at different locations. After firebase is integrated, it will be possible to record locations for multiple users.
 4. To demonstrate the utility of tracker application, two dummy ids[John and Tina] are provided in code if the person list is empty. This is just for demo.
+5. Images cutouts have been used to show different profiles on trackers and note page. In future, user would be able to customise the marker with their own picture.
