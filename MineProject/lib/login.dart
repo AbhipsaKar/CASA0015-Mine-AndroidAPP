@@ -17,7 +17,8 @@ class LoginState extends State<Login> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("MINE"),
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: Colors.green,
+        foregroundColor: Colors.black54,
       ),
       body: Column(
         children: <Widget>[
@@ -65,7 +66,7 @@ class LoginState extends State<Login> {
                             const SizedBox(height: 25),
                             MaterialButton(
                               padding: EdgeInsets.fromLTRB(12.0, 14.0, 12.0, 14.0),
-                              color: Colors.black45,
+                              color: Colors.lightGreen,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(5.0),
                               ),
@@ -79,11 +80,12 @@ class LoginState extends State<Login> {
                                   SharedPreferences prefs = await SharedPreferences.getInstance();
                                   prefs.setString("username", usernamec.text);
                                   prefs.setBool("isLoggedIn", true);
-                                  Navigator.push(context,
+                                  Navigator.pushNamed(context,'/');
+                                  /*Navigator.push(context,
                                       MaterialPageRoute(
                                           builder: (context) => MyHomePage()
                                       )
-                                  );
+                                  );*/
                                 }
 
                                 _performLogin();

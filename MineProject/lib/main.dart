@@ -20,11 +20,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'MINE APP',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.lightGreen,
       ),
-      home: MyHomePage(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const MyHomePage(),
+        '/login': (context) => Login(),
+        '/tracker': (context) => const PlaceTrackerApp(),
+        '/note': (context) => ToDoListApp(),
+      }
     );
   }
 }
@@ -53,8 +59,14 @@ class _MyHomePageState extends State<MyHomePage> {
       if(notes != null) {
         Provider.of<AppState>(context, listen: false).setNotes(notes as List<String>);
       }
+
       if(people != null ) {
         Provider.of<AppState>(context, listen: false).addPersons(people as List<String>);
+      }
+      else
+        {
+          List<String> people = ['John','Tina'];
+          Provider.of<AppState>(context, listen: false).addPersons(people);
       }
 
     });
@@ -71,15 +83,16 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(" Welcome to MINE"),
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: Colors.green,
+        foregroundColor: Colors.black54,
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              (isLoggedIn == true)?'You are logged in as: $username': 'You are Logged Out',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              (isLoggedIn == true)?'You are logged in as: " $username "': 'You are Logged Out',
+              style: TextStyle(fontSize: 20, fontFamily: 'Times', color: Colors.blueGrey),
             ),
             Visibility(
                 child: Column(
@@ -91,13 +104,18 @@ class _MyHomePageState extends State<MyHomePage> {
                     alignment: Alignment(0, 0.8),
                     child: ElevatedButton(
                         onPressed: () {
+                          //Navigator.pushNamed(context,'/tracker');
                           Navigator.push(context,
                               MaterialPageRoute(
                                   builder: (context) => const PlaceTrackerApp()
                               )
                           );
                         },
-                        child: const Text('Tracking')
+                        child: const Text('Tracking',
+                          style: TextStyle(fontSize: 16,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
+                    ),
 
                     ),
 
@@ -116,13 +134,18 @@ class _MyHomePageState extends State<MyHomePage> {
                     alignment: Alignment(0, 0.8),
                     child: ElevatedButton(
                         onPressed: (){
-                          Navigator.push(context,
+                          Navigator.pushNamed(context,'/note');
+                          /*Navigator.push(context,
                               MaterialPageRoute(
                                   builder: (context) => ToDoListApp()
                               )
-                          );
+                          );*/
                         },
-                        child: const Text('To do list')
+                        child: const Text('To do list',
+                          style: TextStyle(fontSize: 16,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
+                        ),
 
                     ),
 
@@ -157,12 +180,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
             _performLogout();
           }else{
-            Navigator.push(
+            Navigator.pushNamed(context,'/login');
+            /*Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) => Login()
                 )
-            );
+            );*/
           }
         },
         tooltip: 'Increment',

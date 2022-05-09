@@ -1,10 +1,12 @@
 
+import 'dart:ui';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'tracker.dart' ;
-
+import 'package:intl/intl.dart';
 
 
 
@@ -17,25 +19,31 @@ class ToDoListApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //var wordPair = WordPair.random();
-    return MaterialApp(
-      title: 'To Do list',
-      theme: ThemeData(          // Add the 5 lines from here...
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.blueGrey,
-          foregroundColor: Colors.grey,
-        ),
-      ),
-      home: Scaffold(
+    return Scaffold(
         appBar: AppBar(
-          title: const Text('Notes'),
+          leading: Padding(
+            padding: const EdgeInsets.fromLTRB(0.0, 0.0, 16.0, 0.0),
+            child: IconButton(
+              icon: Icon(
+                //Toggle button
+                Icons.home,
+                size: 32.0,
+              ),
+              onPressed: () {
+                //Navigator.pop(context);
+                Navigator.popUntil(context, ModalRoute.withName('/'));
+
+              },
+            ),
+          ),
+          title: const Text('To-Do list'),
+          backgroundColor: Colors.green,
+          foregroundColor: Colors.black54,
         ),
         body: const Center(
-          //child: Text('Hello World'),
-          //child: Text(wordPair.asPascalCase),
             child: RandomNotes()
         ),
-      ),
+
     );
   }
 }
@@ -50,48 +58,67 @@ class RandomNotes extends StatefulWidget {
 
 
 class _RandomWordsState extends State<RandomNotes> {
-  //final _suggestions = <WordPair>[];                 // NEW
-  //final _biggerFont = const TextStyle(fontSize: 18); // NEW
+
   final _suggestions = <String>{};
-  //final _saved = <WordPair>{};     // NEW
-  final _biggerFont = TextStyle(fontSize: 18);
+  final _biggerFont = TextStyle(fontSize: 16, fontFamily: 'Times', color: Colors.blueGrey);
 
 
   @override
   Widget build(BuildContext context) {
-    //final wordPair = WordPair.random();      // NEW
-    //return Text(wordPair.asPascalCase);      // NEW
 
     final note = List<String>.from(Provider.of<AppState>(context, listen:false).notes);
     print("Length of list");
     print(note.length);
-    _suggestions.addAll(note);
+    final isNoteExist = note.length > 0? true: false;
+    if(isNoteExist) {
+      _suggestions.addAll(note);
+    }
 
-    return Scaffold( // Add from here...
-      appBar: AppBar(
-        title: const Text('Startup Name Generator'),
+    return Scaffold(
 
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.list),
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(
-                      builder: (context) =>  AddNotePage(noteList: _suggestions.toList())
-                  )
-              );
-            },
-            tooltip: 'Add notes',
+      body: isNoteExist? _buildNoteRows() : _buildblankNote() ,
+      floatingActionButton: Wrap( //will break to another line on overflow
+        direction: Axis.horizontal, //use vertical to show  on vertical axis
+        children: <Widget>[
+          Container(
+            margin:EdgeInsets.all(20),
+            child: FloatingActionButton(
+              onPressed: () {
+                            Navigator.push(context,
+                            MaterialPageRoute(
+                              builder: (context) =>  AddNotePage(noteList: _suggestions.toList())
+                              )
+                            );
+              },
+              tooltip: 'Add note',
+              child: const Icon(Icons.add, color: Colors.white60),
+            ), // This trailing comma makes auto-formatting nicer for build methods.
           ),
-        ],
-      ),
-      body: _buildSuggestions(),
+
+        ],),
     );
 
   }
+  Widget _buildblankNote () {
 
+    return Container(
+        margin:EdgeInsets.symmetric(horizontal: 20.0,vertical: 50.0),
+        child: const Text(
+            "No notes. Pls click on + button",
+            style: TextStyle(fontSize: 24, fontFamily: 'Times', color: Colors.black),
 
-  Widget _buildSuggestions () {
+          ),
+        decoration: BoxDecoration(
+          color: Colors.lightGreen.withOpacity(0.2), // Your desired background color
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 15),
+          ]
+      ),
+    );
+  }
+
+  Widget _buildNoteRows () {
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
@@ -108,16 +135,24 @@ class _RandomWordsState extends State<RandomNotes> {
 
   Widget _buildRow(String note) {
 
-    return ListTile(
+    return Container(
+    margin:EdgeInsets.symmetric(horizontal: 2.0,vertical: 8.0),
+    child: ListTile(
       title: Text(
         note,
         style: _biggerFont,
 
       ),
-      tileColor: Colors.blueGrey,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+        side: const BorderSide(
+          color: Colors.blueGrey,
+        ),
+      ),
+      tileColor: Colors.lightGreen.withOpacity(0.2),
       style: ListTileStyle.drawer,
       contentPadding: EdgeInsets.symmetric(horizontal: 16.0,vertical: 16.0),
-
+      leading: const Image(image: AssetImage('assets/icon0.png')),
       trailing: const Icon( // NEW from here...
 
         Icons.delete_rounded,
@@ -136,7 +171,7 @@ class _RandomWordsState extends State<RandomNotes> {
           _removeNote();
         });
       },
-    );
+    ));
   }
 
 
@@ -154,6 +189,9 @@ class AddNotePage extends StatefulWidget {
 
 class _AddNotePageState extends State<AddNotePage> {
   late final List<String> noteList ;
+  final _titleFont = TextStyle(fontSize: 20, fontFamily: 'Times', color: Colors.blueGrey);
+  final _itemFont = TextStyle(fontSize: 18, fontFamily: 'Times', color: Colors.black38);
+
   _AddNotePageState(List<String> noteList1)
   {
     noteList = noteList1;
@@ -167,11 +205,22 @@ class _AddNotePageState extends State<AddNotePage> {
 
   String selectedValue = "";
   List<DropdownMenuItem<String>> get buildDropdownTestItems{
-    var persons = List<String>.from(Provider.of<AppState>(context, listen:false).persons);
+    final personList = List<String>.from(Provider
+        .of<AppState>(context, listen: false)
+        .persons);
+    final username = Provider
+        .of<AppState>(context, listen: false)
+        .id;
+    print(personList);
+
+    if (personList.isEmpty || (!(personList.contains(username)))) {
+      personList.add(username);
+    }
+    //var persons = List<String>.from(Provider.of<AppState>(context, listen:false).persons);
     var menuItems = <DropdownMenuItem<String>> [];
-    for (var item in persons)
+    for (var item in personList)
     {
-      DropdownMenuItem<String> menuItem = DropdownMenuItem(child: Text(item),value: item);
+      DropdownMenuItem<String> menuItem = DropdownMenuItem(child: Text(item,style: _itemFont,),value: item);
       menuItems.add(menuItem);
     }
 
@@ -182,39 +231,59 @@ class _AddNotePageState extends State<AddNotePage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Enter text"),
+        title: const Text("Add New Note"),
+        backgroundColor: Colors.green,
+        foregroundColor: Colors.black54,
       ),
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            child: Container(
+      body: Container(
+              decoration: BoxDecoration(
+                  color: Colors.lightGreen.withOpacity(0.1), // Your desired background color
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 15),
+                  ]
+              ),
+              margin: EdgeInsets.symmetric(horizontal: 10.0,vertical: 20.0),
               child: SingleChildScrollView(
                 scrollDirection: Axis.vertical,
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 50.0),
-                  child: Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          const SizedBox(height: 200),
-                          DropdownButton(
-                              value: selectedValue == ""?getFirstPerson():selectedValue,
-                              onChanged: (String? newValue){
-                                selectedValue = newValue!;
+                          const SizedBox(height: 30),
+                          Row(
+                            children:<Widget>[
+                              Text("Select recipient ",style: _titleFont),
+                              const SizedBox(width: 40),
+                              DropdownButton(
+                                value: selectedValue == ""?getFirstPerson():selectedValue,
+                                onChanged: (String? newValue){
+                                  print("Change recipient");
+                                  print(newValue);
+                                  selectedValue = newValue!;
+                                  setState(() {});  //Refresh widget
 
-                              },
-                              hint: Text("Select the recipient"),
-                              dropdownColor: Colors.black38,
-                              items: buildDropdownTestItems
+                                },
+                                  elevation: 10,
+                                dropdownColor: Colors.lightGreen.withOpacity(0.8),
+                                items: buildDropdownTestItems
+                              ),
+                            ]
                           ),
-                          const SizedBox(height: 200),
+                          const SizedBox(height: 30),
+                          Row(
+                            children:<Widget>[
+                              Text("Enter Note: ",style: _titleFont,textAlign: TextAlign.left,),
+                              const SizedBox(width: 40),
+                              ]),
+                          const SizedBox(height: 10),
                           TextFormField(
                             controller: note,
                             decoration: InputDecoration(
-                                hintText: 'Add note',
                                 labelText: 'Note',
                                 contentPadding: const EdgeInsets.all(25),
                                 border: OutlineInputBorder(
@@ -224,11 +293,11 @@ class _AddNotePageState extends State<AddNotePage> {
                             keyboardType: TextInputType.text,
                           ),
 
-                          const SizedBox(height: 25),
+                          const SizedBox(height: 100),
                           MaterialButton(
                             padding: EdgeInsets.fromLTRB(12.0, 14.0, 12.0,
                                 14.0),
-                            color: Colors.black45,
+                            color: Colors.lightGreen,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5.0),
                             ),
@@ -241,7 +310,13 @@ class _AddNotePageState extends State<AddNotePage> {
                             onPressed: () {
                               _addNote() async {
                                     var now = new DateTime.now();
-                                    String finaltxt = "To: "+ selectedValue + "\n" + note.text + "\n" + now.toString();
+                                    var formatter = new DateFormat('dd-MM-yyyy');
+                                    String formattedTime = DateFormat('kk:mm a').format(now);
+                                    String formattedDate = formatter.format(now);
+                                    print(formattedTime);
+                                    print(formattedDate);
+                                    //var now = new DateTime.now();
+                                    String finaltxt = "To: "+ selectedValue + "\n" + note.text + "\n" + formattedTime + " " + formattedDate;
                                     setState(() {
                                       noteList.add(finaltxt);
                                     });
@@ -252,12 +327,12 @@ class _AddNotePageState extends State<AddNotePage> {
                                     //prefs!.setStringList("trackers", trackers as List<String>);
                                     prefs!.setStringList("noteList", noteList).then((value) =>
                                         {
-
-                                          Navigator.push(context,
+                                          Navigator.pushNamed(context,'/note')
+                                          /*Navigator.push(context,
                                             MaterialPageRoute(
                                                 builder: (context) => ToDoListApp()
                                             )
-                                        )
+                                        )*/
                                       });
                                     Provider.of<AppState>(context, listen: false).setNotes(noteList);
 
@@ -272,11 +347,8 @@ class _AddNotePageState extends State<AddNotePage> {
                   ),
                 ),
               ),
-            ),
-          ),
 
-        ],
-      ),
+
     );
   }
 }

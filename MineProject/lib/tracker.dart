@@ -3,12 +3,10 @@ import 'dart:typed_data';
 import 'package:flutter/rendering.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:here_sdk/core.dart';
 import 'package:here_sdk/mapview.dart';
 import 'package:geolocator/geolocator.dart';
-import 'login.dart';
 import 'place.dart';
 
 
@@ -22,16 +20,13 @@ class PlaceTrackerApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    return const MaterialApp(
-      home: _PlaceTrackerHomePage(),
-    );
+    return _PlaceTrackerHomePage();
   }
 }
 
 class _PlaceTrackerHomePage extends StatelessWidget {
   const _PlaceTrackerHomePage({Key? key}) : super(key: key);
-
+  final _titleFont = const TextStyle(fontSize: 20, fontFamily: 'Times', color: Colors.blueGrey);
 
   @override
   Widget build(BuildContext context) {
@@ -107,21 +102,32 @@ class _PlaceTrackerHomePage extends StatelessWidget {
 
         print("Length of list");
         print(personList.length);
-
+        int index;
+        GeoCoordinates geo;
         for (var item in personList) {
           print("For user");
           print(item);
-          String jsonString = prefs!.getString("trackers" + item) as String;
-          Map<String, dynamic> trackerMap = jsonDecode(jsonString);
-          Markers trackerlist = Markers.fromJson(trackerMap);
+          if(prefs.getString("trackers" + item) == null)
+            {
+              index = 1;
+              geo = GeoCoordinates(
+                  position.latitude as double,
+                  position.longitude as double);
+            }
+          else{
+            String jsonString = prefs.getString("trackers" + item) as String;
+            Map<String, dynamic> trackerMap = jsonDecode(jsonString);
+            Markers trackerlist = Markers.fromJson(trackerMap);
 
-          print("Location fetched");
-          print(trackerlist!.nowPos.latitude);
+            print("Location fetched");
+            print(trackerlist!.nowPos.latitude);
 
-          int index = personList.indexOf(item);
-          GeoCoordinates geo = GeoCoordinates(
-              trackerlist!.nowPos.latitude as double,
-              trackerlist!.nowPos.longitude as double);
+            index = personList.indexOf(item);
+            geo = GeoCoordinates(
+                trackerlist!.nowPos.latitude as double,
+                trackerlist!.nowPos.longitude as double);
+          }
+
           hereMapController.camera.lookAtPointWithDistance(
               geo, distanceToEarthInMeters);
           MapImage? _photoMapImage;
@@ -149,36 +155,47 @@ class _PlaceTrackerHomePage extends StatelessWidget {
 
     Widget _buildRow(String note) {
 
-      return ListTile(
-        title: Text(
-          note,
-          style: TextStyle(fontSize: 20),
+      return Container(
+          margin:EdgeInsets.symmetric(horizontal: 2.0,vertical: 8.0),
+          child: ListTile(
+            title: Text(
+              note,
+              style: _titleFont,
 
-        ),
-        tileColor: Colors.grey,
-        style: ListTileStyle.drawer,
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+              ),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+                side: const BorderSide(
+                    color: Colors.blueGrey,
+                    ),
+                ),
 
-        trailing: const Icon(
-          Icons.gps_not_fixed,
-          semanticLabel: 'Track',
-        ),
-        onTap: () {
-          track() async {
-            print("Trying to track");
-            state.setViewType(
-              state.viewType == PlaceTrackerViewType.map
+            tileColor: Colors.lightGreen.withOpacity(0.2),
+            style: ListTileStyle.drawer,
+            contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+
+            trailing: const Icon(
+              Icons.gps_not_fixed,
+              semanticLabel: 'Track',
+            ),
+            onTap: () {
+                    track() async {
+                    print("Trying to track");
+                    state.setViewType(
+                      state.viewType == PlaceTrackerViewType.map
                   ? PlaceTrackerViewType.list
                   : PlaceTrackerViewType.map,
-            );
+                    );
 
-            HereMap(onMapCreated: _onMapCreated );
-          }
+                    HereMap(onMapCreated: _onMapCreated );
+                    }
 
-          track();
+                  track();
 
-        },
+            },
+          )
       );
+
     }
 
     Widget _buildSuggestions() {
@@ -203,8 +220,24 @@ class _PlaceTrackerHomePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("MINE: Tracker"),
-        backgroundColor: Colors.blueGrey,
+        leading: Padding(
+          padding: const EdgeInsets.fromLTRB(0.0, 0.0, 16.0, 0.0),
+          child: IconButton(
+            icon: Icon(
+              //Toggle button
+              Icons.home,
+              size: 32.0,
+            ),
+            onPressed: () {
+              //Navigator.pop(context);
+             Navigator.popUntil(context, ModalRoute.withName('/'));
+
+            },
+          ),
+        ),
+        title: Text('Trackers'),
+        backgroundColor: Colors.green,
+        foregroundColor: Colors.black54,
         actions: [
           Padding(
             padding: const EdgeInsets.fromLTRB(0.0, 0.0, 16.0, 0.0),
@@ -228,7 +261,7 @@ class _PlaceTrackerHomePage extends StatelessWidget {
         ],
       ),
       body: IndexedStack(
-        index: state.viewType == PlaceTrackerViewType.map ? 0 : 1,
+        index: state.viewType == PlaceTrackerViewType.map ? 1 : 0,
         children: [
           _buildSuggestions(),
           HereMap(onMapCreated: _onMapCreated),
@@ -246,7 +279,7 @@ class AppState extends ChangeNotifier {
 
     this.isLoggedIn = false,
     this.id = "Guest",
-    this.viewType = PlaceTrackerViewType.map,
+    this.viewType = PlaceTrackerViewType.list,
     required this.persons,
     required this.markers,  //To be able to initialise the list to Null on Application boot
     required this.notes
@@ -315,12 +348,8 @@ class Markers {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
 
-    if (this.nowPos != null) {
-      data['nowPos'] = this.nowPos.toJson();
-    }
-    if (this.member != null) {
-      data['member'] = this.member.toJson();
-    }
+    data['nowPos'] = this.nowPos.toJson();
+    data['member'] = this.member.toJson();
     return data;
   }
 
