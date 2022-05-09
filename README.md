@@ -30,14 +30,19 @@ The proposed app has the following features:
 
 ## Screenshots
 Login workflow:
+
 ![image](https://user-images.githubusercontent.com/91799774/167434793-2b982b79-f1fc-4005-859a-047b3181f994.png)
 
 Tracker workflow:
+
 ![image](https://user-images.githubusercontent.com/91799774/167436423-dccfe41f-af67-4eef-9359-f9c7d0b3a83d.png)
 
 
 Notes workflow:
-![image](https://user-images.githubusercontent.com/91799774/167438993-2a975242-e5e5-4e34-bf51-a1524d113963.png)
+
+
+![image](https://user-images.githubusercontent.com/91799774/167446067-6aec374d-c576-42a7-82f4-8a29e18ea656.png)
+
 
 ## Challenges and Future improvement
 1. The login module remembers the login state through local storage. But the module is incomplete and allows login irrespective of the password or username. 
