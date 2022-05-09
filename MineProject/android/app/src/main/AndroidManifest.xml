@@ -6,8 +6,8 @@
         android:icon="@mipmap/ic_launcher">
 
        <!-- Set your credentials for the HERE SDK. -->
-       <meta-data android:name="com.here.sdk.access_key_id" android:value="pAaaeXVoMb7uc9HrDxIVtA"/>
-       <meta-data android:name="com.here.sdk.access_key_secret" android:value="stAzxOjZqMuJZUZefkcrc4MLnwtKnWJGq-5IDbUs7_wo-KoOwgfmxfRZ5aw5f9TJ3IQQob7Ouu1t2910XsvkTw"/>
+       <meta-data android:name="com.here.sdk.access_key_id" android:value="xxx"/>
+       <meta-data android:name="com.here.sdk.access_key_secret" android:value="xxx"/>
 
        <activity
             android:name=".MainActivity"
